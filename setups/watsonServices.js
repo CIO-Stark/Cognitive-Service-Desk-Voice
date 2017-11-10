@@ -1,23 +1,25 @@
 (function () {
     "use strict";
 
-    var wdc_nlu = require('watson-developer-cloud/natural-language-understanding/v1.js');
     var TextToSpeechV1 = require('watson-developer-cloud/text-to-speech/v1');
+    var watsonConversation = require("watson-developer-cloud/conversation/v1");
 
-
-    var nlu = new wdc_nlu({
-        username: "",
-        password: "",
-        version_date: wdc_nlu.VERSION_DATE_2016_01_23
+    var conversation = new watsonConversation({
+        "username": JSON.parse(process.env.VCAP_SERVICES)["conversation"][0].credentials.username,
+        "password": JSON.parse(process.env.VCAP_SERVICES)["conversation"][0].credentials.password,
+        "version": "v1",
+        "version_date": "2017-02-03",
+        "workspace_id": process.env.workspace_id
     });
 
 
+
     var text_to_speech = new TextToSpeechV1({
-        username: '',
-        password: ''
-        });
+        username: (JSON.parse(process.env.VCAP_SERVICES)["text_to_speech"][0].credentials.username),
+        password: (JSON.parse(process.env.VCAP_SERVICES)["text_to_speech"][0].credentials.password)
+    });
 
 
-    module.exports.nlu = nlu;
     module.exports.text_to_speech = text_to_speech; 
+    module.exports.conversation = conversation;
 }());

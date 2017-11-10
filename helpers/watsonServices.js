@@ -45,51 +45,30 @@
      * @param {*} context 
      */
     var sendQuestion = function(question, context) {
-        //uri: "http://localhost:6003/askWatson?module=hr_module",
-        //https://stark-dev-uradigital.mybluemix.net/askWatson?module=hr_module
-        var options = {
-            uri: "https://stark-dev-uradigital.mybluemix.net/askWatson?module=vivo",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-            },
-            body: ["question=", question, "&context=", JSON.stringify(context)].join("")
-        };
-        console.log("options:", options);
         
-        return new Promise(function(resolve, reject){
-            request.post(options).then(function(data){
-                resolve(JSON.parse(data));
-            }).catch(function(err){
-                console.error("Erro", err);
-                reject(err);
+        var options = {
+            "input": {
+                "text": question
+            },
+            workspace_id: process.env.workspace_id,
+            "context": context
+        };
+            
+        return new Promise(function (resolve, reject) {
+            if (!options) {
+                return reject("Can not proceed without options object");
+            }
+            watsonServices.conversation.message(options, function (err, response) {
+                if (err) {
+          
+                    console.log(err);
+                    reject(err);
+                } else 
+                    resolve(response);
+                
             });
         });
-    };
-
-        /**
-         * genesys api call
-         * @param {*} question 
-         * @param {*} shortLink 
-         * @param {*} context 
-         */
-        var sendQuestionGenesys = function(question, shortLink, context) {
-        var options = {
-            uri: "https://watsonithelpbeta.mybluemix.net/askWatson",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-            },
-            body: ["question=", question, "&genesys=", shortLink || true, "&context=", encodeURIComponent(JSON.stringify(context))].join("")
-        };
-        console.log("options:", options);
         
-        return new Promise(function(resolve, reject){
-            request.post(options).then(function(data){
-                resolve(JSON.parse(data));
-            }).catch(function(err){
-                console.error("Erro", err);
-                reject(err);
-            });
-        });
     };
 
 
@@ -97,7 +76,6 @@
 
     module.exports = {
         watsonTTS: watsonTTS,
-        sendQuestion: sendQuestion,
-        sendQuestionGenesys: sendQuestionGenesys
+        sendQuestion: sendQuestion
     };
 }());

@@ -3,7 +3,7 @@
 
     module.exports = function (app, modules) {
         var twilio = require("twilio");
-        var host = "https://stark-voice-csd-genesys.mybluemix.net";
+        var host = "https://stark-voice-csd-prod.mybluemix.net";
         
         
         var request = modules.request;
@@ -49,14 +49,14 @@
             'Content-Type':'text/xml'
         });
         
-        watsonServices.sendQuestionGenesys(req.body.question || 'hello', true, {}).then(
+        watsonServices.sendQuestion(req.body.question || 'hello', {}).then(
             function(watsonResponse){
                 console.log("watsonResponse", watsonResponse);
                 var resp = new twilio.TwimlResponse();
                 
                 if(watsonResponse.hasOwnProperty("output") && watsonResponse.output.text.length){
                     // converts watson response to audio file
-                    watsonServices.watsonTTS(watsonResponse.output.voice || watsonResponse.output.text[0], watsonResponse.context.conversation_id)
+                    watsonServices.watsonTTS(watsonResponse.output.text[0], watsonResponse.context.conversation_id)
                         .then(function(audioFile){
                             //resp.say({voice:'woman'}, watsonResponse.output.text[0]);
                             resp.play(req.protocol + '://' + req.get('host') + '/ttsAudios/' + audioFile);
@@ -86,8 +86,7 @@
     
         
             }).catch(function(error){
-                console.error("Error on watson conversation response", error);
-                resp = new twilio.TwimlResponse();
+                console.error("Error on watson conversation response", error.message);
                 resp.say({voice:'woman'}, 'Issues...');
                 res.end(resp.toString());
         });
@@ -177,14 +176,14 @@
                                  * 
                                  */
                                 // send transcription to watson Conversation
-                                watsonServices.sendQuestionGenesys(transcription, true, watsonContext).then(
+                                watsonServices.sendQuestion(transcription, watsonContext).then(
                                     function(watsonResponse){
                                         console.log("watsonResponse", watsonResponse);
                                         var resp = new twilio.TwimlResponse();
                                         
                                         if(watsonResponse.hasOwnProperty("output") && watsonResponse.output.text.length){
                                             // converts watson response text to audio file so it can be played to the phone
-                                            watsonServices.watsonTTS(watsonResponse.output.voice || watsonResponse.output.text[0], watsonResponse.context.conversation_id)
+                                            watsonServices.watsonTTS(watsonResponse.output.text[0], watsonResponse.context.conversation_id)
                                                 .then( 
                                                     function(audioFile){
 
