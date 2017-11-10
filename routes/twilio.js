@@ -3,7 +3,7 @@
 
     module.exports = function (app, modules) {
         var twilio = require("twilio");
-        var host = "https://stark-voice-csd-prod.mybluemix.net";
+        var host = "https://portfolio-cognitive-service-desk-voice.mybluemix.net";
         
         
         var request = modules.request;
